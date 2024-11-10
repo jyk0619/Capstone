@@ -14,7 +14,9 @@ class ImgInfoViewModel extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // Firestore에 선택된 옵션 저장
-  Future<void> saveSelectedOptions() async {
+  Future<void> saveSelectedOptions(url) async {
+    String Url = url;
+    print('업로드됨 :'+ Url);
     try {
       // Firestore에 저장할 데이터 구성
       Map<String, dynamic> data = {
@@ -24,12 +26,14 @@ class ImgInfoViewModel extends ChangeNotifier {
         'color': selectedOptions.color,
         'season': selectedOptions.season,
         'pattern': selectedOptions.pattern,
+        'imageUrl': Url,
       };
 
       // Firestore의 컬렉션에 데이터 추가
       await _firestore.collection('item').add(data);
 
       print("데이터가 성공적으로 Firestore에 저장되었습니다.");
+      print('업로드됨: $data');
     } catch (e) {
       print("데이터 저장 중 오류 발생: $e");
     }
@@ -49,6 +53,7 @@ class ImgInfoViewModel extends ChangeNotifier {
   String get category => _category;
   String get colorPalette => _colorPalette;
   String get colorName => _colorName;
+
 
   SelectedOptions get selectedOptions => _selectedOptions;
 

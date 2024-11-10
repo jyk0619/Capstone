@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:capstone/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -12,34 +13,6 @@ class Closet extends StatefulWidget {
 }
 
 class _ClosetState extends State<Closet> {
-  int? itemCount; // null 초기화로 준비 상태를 나타냄
-  bool isLoading = true; // 로딩 상태
-  List<QueryDocumentSnapshot>? allItems; // 전체 아이템
-  List<QueryDocumentSnapshot>? topItems; // 상의 아이템
-  List<QueryDocumentSnapshot>? bottomItems; // 하의 아이템
-  List<QueryDocumentSnapshot>? outerItems; // 아우터 아이템
-
-  @override
-  void initState() {
-    super.initState();
-    getData(); // initState에서 getData를 호출
-  }
-
-  // Firestore에서 데이터 가져오기
-  Future<void> getData() async {
-    var item = await firestore.collection('item').get();
-
-    setState(() {
-      itemCount = item.docs.length;
-      allItems = item.docs; // 전체 아이템 저장
-      // 카테고리별로 필터링
-      topItems = item.docs.where((doc) => doc['category'] == '상의').toList();
-      bottomItems = item.docs.where((doc) => doc['category'] == '하의').toList();
-      outerItems = item.docs.where((doc) => doc['category'] == '아우터').toList();
-      isLoading = false; // 데이터 로딩 완료 후 로딩 상태를 false로 변경
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -58,16 +31,38 @@ class _ClosetState extends State<Closet> {
             Expanded(
               child: TabBarView(
                 children: [
-                  isLoading ? Center(child: SizedBox(child: CircularProgressIndicator())) : Grid(item: allItems),
-                  isLoading ? Center(child: SizedBox(child: CircularProgressIndicator())) : Grid(item: topItems),
-                  isLoading ? Center(child: SizedBox(child: CircularProgressIndicator())): Grid(item: bottomItems),
-                  isLoading ? Center(child: SizedBox(child: CircularProgressIndicator())) : Grid(item: outerItems),
+                  _buildStreamBuilder('전체'),
+                  _buildStreamBuilder('상의'),
+                  _buildStreamBuilder('하의'),
+                  _buildStreamBuilder('아우터'),
                 ],
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  // StreamBuilder로 Firestore에서 실시간 데이터 가져오기
+  Widget _buildStreamBuilder(String category) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: firestore
+          .collection('item')
+          .where('category', isEqualTo: category != '전체' ? category : null) // 카테고리별 필터링
+          .snapshots(), // 실시간 데이터 스트림
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return Center(child: Text('No items available.'));
+        } else {
+          List<QueryDocumentSnapshot> items = snapshot.data!.docs;
+          return Grid(item: items);
+        }
+      },
     );
   }
 }
@@ -85,6 +80,14 @@ class Grid extends StatelessWidget {
       ),
       itemCount: item?.length ?? 0, // 아이템 개수
       itemBuilder: (context, index) {
+        var data = item![index].data() as Map<String, dynamic>;
+        String imageUrl = data['imageUrl'] ?? '';
+
+        // 이미지 URL이 없으면 기본 이미지 설정
+        if (imageUrl.isEmpty || !imageUrl.startsWith('http')) {
+          imageUrl = 'https://via.placeholder.com/150';
+        }
+
         return Container(
           decoration: BoxDecoration(
             border: Border.all(color: Colors.grey),
@@ -93,10 +96,33 @@ class Grid extends StatelessWidget {
           height: 100,
           child: Column(
             children: [
-              Text('아이템 $index'), // 아이템 번호 표시
+              ButtonBar(
+                alignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.delete),
+                    onPressed: () async {
+                      // 아이템 삭제
+                      await item![index].reference.delete();
+                    },
+                  ),
+                ],
+              ),
               Expanded(
-                child: Container(
-                  child: Text(item![index].data().toString()), // 각 아이템의 데이터 표시
+                child: InkWell(
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          content: Image.network(imageUrl),
+                        );
+                      },
+                    );
+                  },
+                  child: Container(
+                    child: Image.network(imageUrl),
+                  ),
                 ),
               ),
             ],

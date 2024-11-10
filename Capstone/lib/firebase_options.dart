@@ -46,7 +46,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '903604484748',
     projectId: 'capstone-1b6ae',
     authDomain: 'capstone-1b6ae.firebaseapp.com',
-    storageBucket: 'capstone-1b6ae.appspot.com',
+    storageBucket: 'capstone-1b6ae.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
@@ -54,7 +54,7 @@ class DefaultFirebaseOptions {
     appId: '1:903604484748:android:2fe3d68b45b8b933ccd9a9',
     messagingSenderId: '903604484748',
     projectId: 'capstone-1b6ae',
-    storageBucket: 'capstone-1b6ae.appspot.com',
+    storageBucket: 'capstone-1b6ae.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
@@ -62,7 +62,7 @@ class DefaultFirebaseOptions {
     appId: '1:903604484748:ios:5f13f2123af4e8deccd9a9',
     messagingSenderId: '903604484748',
     projectId: 'capstone-1b6ae',
-    storageBucket: 'capstone-1b6ae.appspot.com',
+    storageBucket: 'capstone-1b6ae.firebasestorage.app',
     iosBundleId: 'com.example.capstone',
   );
 
@@ -71,7 +71,7 @@ class DefaultFirebaseOptions {
     appId: '1:903604484748:ios:5f13f2123af4e8deccd9a9',
     messagingSenderId: '903604484748',
     projectId: 'capstone-1b6ae',
-    storageBucket: 'capstone-1b6ae.appspot.com',
+    storageBucket: 'capstone-1b6ae.firebasestorage.app',
     iosBundleId: 'com.example.capstone',
   );
 
@@ -81,6 +81,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '903604484748',
     projectId: 'capstone-1b6ae',
     authDomain: 'capstone-1b6ae.firebaseapp.com',
-    storageBucket: 'capstone-1b6ae.appspot.com',
+    storageBucket: 'capstone-1b6ae.firebasestorage.app',
   );
+
 }

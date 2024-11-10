@@ -1,8 +1,12 @@
 import 'dart:io';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:capstone/viewmodel/imginfo_view_model.dart';
+import 'package:path_provider/path_provider.dart';
+
+
 class ImgInfo extends StatefulWidget {
   final File file;
 
@@ -21,6 +25,12 @@ class _ImgInfoState extends State<ImgInfo> {
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<ImgInfoViewModel>(context);
+    String url = '';
+    setUrl(String value) {
+      setState(() {
+        url = value;
+      });
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -94,7 +104,8 @@ class _ImgInfoState extends State<ImgInfo> {
           ),
           ElevatedButton(
             onPressed: () async {
-              await viewModel.saveSelectedOptions(); // Firestore에 저장
+              String imageUrl = await uploadFile(widget.file);
+              await viewModel.saveSelectedOptions(imageUrl); // Firestore에 저장
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('데이터가 저장되었습니다.')),
               );
@@ -109,8 +120,8 @@ class _ImgInfoState extends State<ImgInfo> {
 }
 
 class FormWidget extends StatelessWidget {
-  final List<String> option;  // 드롭다운 메뉴의 옵션 리스트
-  final String name;           // 드롭다운의 이름 (레이블)
+  final List<String> option; // 드롭다운 메뉴의 옵션 리스트
+  final String name; // 드롭다운의 이름 (레이블)
   final String selectedOption; // 선택된 옵션
   final ValueChanged<String> onOptionSelected; // 옵션 선택 시 호출되는 콜백
 
@@ -152,5 +163,51 @@ class FormWidget extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+Future<String> uploadFile(File file) async {
+  try {
+    // 파일 메타데이터 생성
+    final metadata = SettableMetadata(contentType: "image/jpeg");
+
+    // Firebase Storage에 업로드할 파일 경로 참조 생성
+    final storageRef = FirebaseStorage.instance.ref();
+    final fileName = file.path.split('/').last;  // 파일 이름만 추출
+
+    // 파일을 Firebase Storage에 업로드
+    final uploadTask = storageRef.child("images/$fileName").putFile(file, metadata);
+
+    // 업로드 상태를 수신
+    uploadTask.snapshotEvents.listen((TaskSnapshot taskSnapshot) {
+      switch (taskSnapshot.state) {
+        case TaskState.running:
+          final progress = 100.0 * (taskSnapshot.bytesTransferred / taskSnapshot.totalBytes);
+          print("Upload is $progress% complete.");
+          break;
+        case TaskState.paused:
+          print("Upload is paused.");
+          break;
+        case TaskState.canceled:
+          print("Upload was canceled.");
+          break;
+        case TaskState.error:
+          print("Upload failed.");
+          break;
+        case TaskState.success:
+          print("Upload complete!");
+          break;
+      }
+    });
+
+    // 업로드가 완료되면 다운로드 URL 가져오기
+    final downloadUrl = await uploadTask.snapshot.ref.getDownloadURL();
+    print("Download URL: $downloadUrl");  // 다운로드 URL 출력
+
+    return downloadUrl;  // 다운로드 URL을 반환
+
+  } catch (e) {
+    print("Error uploading file: $e");
+    return '';  // 오류가 발생하면 빈 문자열을 반환
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'imageupload.dart' as imgupload;
 import 'closet.dart';
+import 'mypage.dart';
 import 'view/weather_screen.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -27,7 +28,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 .inversePrimary,
             title: Text(title[tab].toString(),style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold),)
         ),
-        body:[home() , Closet(),Text('2')][tab],
+        body:[home() , Closet(), MyPage()][tab],
         bottomNavigationBar: BottomAppBar(
           color: Theme
               .of(context)
