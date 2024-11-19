@@ -69,7 +69,7 @@ class _ImgInfoState extends State<ImgInfo> {
           ),
           FormWidget(
             name: '클래스',
-            option: ['shirts', 'short_sleeve', 'denim'],
+            option: ['shirts', 'short_sleeve', 'denim', 'sweat', 'jacket'],
             selectedOption: viewModel.selectedOptions.classname,
             onOptionSelected: (value) {
               viewModel.updateOption('클래스', value);

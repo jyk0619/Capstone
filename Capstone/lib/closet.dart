@@ -92,22 +92,11 @@ class Grid extends StatelessWidget {
           decoration: BoxDecoration(
             border: Border.all(color: Colors.grey),
           ),
-          width: 100,
-          height: 100,
+
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              ButtonBar(
-                alignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.delete),
-                    onPressed: () async {
-                      // 아이템 삭제
-                      await item![index].reference.delete();
-                    },
-                  ),
-                ],
-              ),
+
               Expanded(
                 child: InkWell(
                   onTap: () {
@@ -115,13 +104,43 @@ class Grid extends StatelessWidget {
                       context: context,
                       builder: (context) {
                         return AlertDialog(
-                          content: Image.network(imageUrl),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Image.network(imageUrl), // 이미지를 다이얼로그에 표시
+                              SizedBox(height: 20),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop(); // 다이얼로그 닫기
+                                    },
+                                    child: Text("취소"),
+                                  ),
+                                  TextButton(
+                                    onPressed: () async {
+                                      // 아이템 삭제
+                                      await item![index].reference.delete();
+                                      Navigator.of(context).pop(); // 다이얼로그 닫기
+                                    },
+                                    child: Text(
+                                      "삭제",
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         );
                       },
                     );
                   },
                   child: Container(
-                    child: Image.network(imageUrl),
+                    width: double.infinity,
+                    height: double.infinity,
+                    child: Image.network(imageUrl, fit: BoxFit.cover),
                   ),
                 ),
               ),
