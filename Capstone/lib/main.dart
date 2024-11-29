@@ -35,6 +35,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (context)=>ImgInfoViewModel()), // ImgInfoViewModel 추가
       ],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: ThemeData(
           colorScheme: ColorScheme.light(primary: Colors.black, secondary: Colors.white),
